@@ -5,10 +5,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -18,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role.Companion.Button
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +52,43 @@ fun AppLayout(modifier: Modifier = Modifier) {
         CalculatorOutput(output) {value: String ->
             output = value
         }
+        ButtonRow() {
+            CalcButton("1", 1f) {}
+            CalcButton("2", 1f) {}
+            CalcButton("3", 1f) {}
+            CalcButton("+", 1f) {}
+            CalcButton("*", 1f) {}
+        }
+        ButtonRow() {
+            CalcButton("4", 1f) {}
+            CalcButton("5", 1f) {}
+            CalcButton("6", 1f) {}
+            CalcButton("-", 1f) {}
+            CalcButton("\\", 1f) {}
+        }
+        ButtonRow() {
+            CalcButton("7", 1f) {}
+            CalcButton("8", 1f) {}
+            CalcButton("9", 1f) {}
+            CalcButton("sqrt", 2f) {}
+        }
+        ButtonRow() {
+            CalcButton("0", 2f) {}
+            CalcButton(".", 1f) {}
+            CalcButton("=", 2f) {}
+        }
+    }
+}
+
+@Composable
+fun ColumnScope.ButtonRow(content: @Composable RowScope.() -> Unit) {
+    Row(modifier = Modifier.weight(1f), content=content)
+}
+
+@Composable
+fun RowScope.CalcButton(label: String, width: Float, onClick: () -> Unit) {
+    FilledTonalButton(onClick=onClick, modifier=Modifier.weight(width).fillMaxSize()) {
+        Text(label)
     }
 }
 
