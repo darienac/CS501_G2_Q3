@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.cs501_g2_q3.ui.theme.CS501_G2_Q3Theme
+import kotlin.math.sqrt
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,37 +53,63 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+enum class Operation {
+    NONE, ADD, MULTIPLY, SUBTRACT, DIVIDE, SQRT
+}
+
 @Composable
 fun AppLayout(modifier: Modifier = Modifier) {
     var output by remember {mutableStateOf("")}
+    var argNum by remember {mutableStateOf(0)}
+    var operation by remember {mutableStateOf(Operation.NONE)}
+
+    fun calculate(arg1: Double, arg2: Double): Number {
+        var out: Double
+        when (operation) {
+            Operation.NONE -> out = arg1
+            Operation.ADD -> out = arg1 + arg2
+            Operation.MULTIPLY -> out = arg1 * arg2
+            Operation.SUBTRACT -> out = arg1 - arg2
+            Operation.DIVIDE -> out = arg1 / arg2
+            Operation.SQRT -> out = sqrt(arg1)
+        }
+        operation = Operation.NONE
+        return out
+    }
+
     Column(modifier=modifier.fillMaxWidth().padding(0.dp, 0.dp, 0.dp, 8.dp)) {
         CalculatorOutput(output) {value: String ->
             output = value
         }
         Spacer(modifier=Modifier.weight(4f))
         ButtonRow() {
-            CalcButton("1", 1f) {}
-            CalcButton("2", 1f) {}
-            CalcButton("3", 1f) {}
+            CalcButton("1", 1f) {output += "1"}
+            CalcButton("2", 1f) {output += "2"}
+            CalcButton("3", 1f) {output += "3"}
             CalcButton("+", 1f) {}
             CalcButton("*", 1f) {}
         }
         ButtonRow() {
-            CalcButton("4", 1f) {}
-            CalcButton("5", 1f) {}
-            CalcButton("6", 1f) {}
+            CalcButton("4", 1f) {output += "4"}
+            CalcButton("5", 1f) {output += "5"}
+            CalcButton("6", 1f) {output += "6"}
             CalcButton("-", 1f) {}
             CalcButton("\\", 1f) {}
         }
         ButtonRow() {
-            CalcButton("7", 1f) {}
-            CalcButton("8", 1f) {}
-            CalcButton("9", 1f) {}
-            CalcButton("sqrt", 2f) {}
+            CalcButton("7", 1f) {output += "7"}
+            CalcButton("8", 1f) {output += "8"}
+            CalcButton("9", 1f) {output += "9"}
+            CalcButton("sqrt", 2f) {
+
+            }
         }
         ButtonRow() {
-            CalcButton("0", 2f) {}
-            CalcButton(".", 1f) {}
+            CalcButton("0", 1f) {output += "0"}
+            CalcButton(".", 1f) {output += "."}
+            CalcButton("C", 1f) {
+                output = ""
+            }
             CalcButton("=", 2f) {}
         }
     }
