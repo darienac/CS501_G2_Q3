@@ -54,24 +54,45 @@ class MainActivity : ComponentActivity() {
 }
 
 enum class Operation {
-    NONE, ADD, MULTIPLY, SUBTRACT, DIVIDE, SQRT
+    NONE, ADD, MULTIPLY, SUBTRACT, DIVIDE, SQRT, ERROR
 }
 
 @Composable
 fun AppLayout(modifier: Modifier = Modifier) {
     var output by remember {mutableStateOf("")}
-    var argNum by remember {mutableStateOf(0)}
+    var argNum by remember {mutableStateOf(0.0)}
     var operation by remember {mutableStateOf(Operation.NONE)}
 
-    fun calculate(arg1: Double, arg2: Double): Number {
-        var out: Double
+    // Used to clear error messages from calculator output
+    var error by remember { mutableStateOf(false) }
+
+    fun calculate(arg1: Double, arg2: Double): String {
+        var out: String
         when (operation) {
-            Operation.NONE -> out = arg1
-            Operation.ADD -> out = arg1 + arg2
-            Operation.MULTIPLY -> out = arg1 * arg2
-            Operation.SUBTRACT -> out = arg1 - arg2
-            Operation.DIVIDE -> out = arg1 / arg2
-            Operation.SQRT -> out = sqrt(arg1)
+            Operation.NONE -> out = (arg1).toString()
+            Operation.ADD -> out = (arg1 + arg2).toString()
+            Operation.MULTIPLY -> out = (arg1 * arg2).toString()
+            Operation.SUBTRACT -> out = (arg1 - arg2).toString()
+            Operation.DIVIDE ->
+                if (arg2 == 0.0) {
+                    out = "Error: Divide by Zero"
+                    error = true
+                }
+                else {
+                    out = (arg1 / arg2).toString()
+                }
+            Operation.SQRT ->
+                if (arg2 < 0.0) {
+                    out = "Error: Square Root of Negative Number"
+                    error = true
+                }
+                else {
+                    out = sqrt(arg1).toString()
+                }
+            Operation.ERROR -> {
+                out = "Error: Enter valid operand"
+                error = true
+            }
         }
         operation = Operation.NONE
         return out
@@ -83,34 +104,125 @@ fun AppLayout(modifier: Modifier = Modifier) {
         }
         Spacer(modifier=Modifier.weight(4f))
         ButtonRow() {
-            CalcButton("1", 1f) {output += "1"}
-            CalcButton("2", 1f) {output += "2"}
-            CalcButton("3", 1f) {output += "3"}
-            CalcButton("+", 1f) {}
-            CalcButton("*", 1f) {}
-        }
-        ButtonRow() {
-            CalcButton("4", 1f) {output += "4"}
-            CalcButton("5", 1f) {output += "5"}
-            CalcButton("6", 1f) {output += "6"}
-            CalcButton("-", 1f) {}
-            CalcButton("\\", 1f) {}
-        }
-        ButtonRow() {
-            CalcButton("7", 1f) {output += "7"}
-            CalcButton("8", 1f) {output += "8"}
-            CalcButton("9", 1f) {output += "9"}
-            CalcButton("sqrt", 2f) {
-
+            // checks for error message, removes it if there is one, else adds input to output
+            CalcButton("1", 1f) {if (error) {output = "1"
+                error = false} else output += "1"}
+            CalcButton("2", 1f) {if (error) {output = "2"
+                error = false} else output += "2"}
+            CalcButton("3", 1f) {if (error) {output = "3"
+                error = false} else output += "3"}
+            CalcButton("+", 1f) {
+                // set argNum to the value of output.toDoubleOrNull() before resetting output
+                // allows for argNum = operand to hold the correct value
+                val operand = output.toDoubleOrNull()
+                if (operand == null){
+                    output = "Error: Enter valid operand"
+                    argNum = 0.0
+                    operation = Operation.NONE
+                    error = true
+                }
+                else {
+                    output = ""
+                    argNum = operand
+                    operation = Operation.ADD
+                }
+            }
+            CalcButton("*", 1f) {
+                val operand = output.toDoubleOrNull()
+                if (operand == null){
+                    output = "Error: Enter valid operand"
+                    error = true
+                    argNum = 0.0
+                    operation = Operation.NONE
+                }
+                else {
+                    output = ""
+                    argNum = operand
+                    operation = Operation.MULTIPLY
+                }
             }
         }
         ButtonRow() {
-            CalcButton("0", 1f) {output += "0"}
-            CalcButton(".", 1f) {output += "."}
+            CalcButton("4", 1f) {if (error) {output = "4"
+                error = false} else output += "4"}
+            CalcButton("5", 1f) {if (error) {output = "5"
+                error = false} else output += "5"}
+            CalcButton("6", 1f) {if (error) {output = "6"
+                error = false} else output += "6"}
+            CalcButton("-", 1f) {
+                val operand = output.toDoubleOrNull()
+                // allows for negative operands
+                if (output.isEmpty()){
+                    if (error) {output = "-"
+                        error = false} else output += "-"
+                }
+                if (operand == null){
+                    output = "Error: Enter valid operand"
+                    error = true
+                    argNum = 0.0
+                    operation = Operation.NONE
+                }
+                else {
+                    output = ""
+                    argNum = operand
+                    operation = Operation.SUBTRACT
+                }
+            }
+            CalcButton("\\", 1f) {
+                val operand = output.toDoubleOrNull()
+                if (operand == null){
+                    output = "Error: Enter valid operand"
+                    error = true
+                    argNum = 0.0
+                    operation = Operation.NONE
+                }
+                else {
+                    output = ""
+                    argNum = operand
+                    operation = Operation.DIVIDE
+                }
+            }
+        }
+        ButtonRow() {
+            CalcButton("7", 1f) {if (error) {output = "7"
+                error = false} else output += "7"}
+            CalcButton("8", 1f) {if (error) {output = "8"
+                error = false} else output += "8"}
+            CalcButton("9", 1f) {if (error) {output = "9"
+                error = false} else output += "9"}
+            CalcButton("sqrt", 2f) {
+                val outputTemp = output
+                val operand = outputTemp.toDoubleOrNull()
+                // checks to see if operand is valid
+                if (operand == null) {
+                    operation  = Operation.ERROR
+                }
+                else {
+                    operation = Operation.SQRT
+                    val result = calculate(output.toDoubleOrNull() ?: 0.0, 0.0)
+                    output = result
+                }
+            }
+        }
+        ButtonRow() {
+            CalcButton("0", 1f) {if (error) {output = "0"
+                error = false} else output += "0"}
+            CalcButton(".", 1f) {if (error) {output = "."
+                error = false} else output += "."}
             CalcButton("C", 1f) {
                 output = ""
             }
-            CalcButton("=", 2f) {}
+            CalcButton("=", 2f) {
+                val outputTemp = output
+                val operand = outputTemp.toDoubleOrNull()
+                if (operand == null) {
+                    operation  = Operation.ERROR
+                }
+                else {
+                    val result = calculate(argNum, output.toDoubleOrNull() ?: 0.0)
+                    output = result
+                }
+            }
         }
     }
 }
