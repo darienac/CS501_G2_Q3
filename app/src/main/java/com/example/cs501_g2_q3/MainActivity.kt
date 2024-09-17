@@ -82,7 +82,7 @@ fun AppLayout(modifier: Modifier = Modifier) {
                     out = (arg1 / arg2).toString()
                 }
             Operation.SQRT ->
-                if (arg2 < 0.0) {
+                if (arg1 < 0.0) {
                     out = "Error: Square Root of Negative Number"
                     error = true
                 }
@@ -151,12 +151,16 @@ fun AppLayout(modifier: Modifier = Modifier) {
                 error = false} else output += "6"}
             CalcButton("-", 1f) {
                 val operand = output.toDoubleOrNull()
+                // removes error message first
+                if (error) {
+                    output = ""
+                    error  =  false
+                }
                 // allows for negative operands
                 if (output.isEmpty()){
-                    if (error) {output = "-"
-                        error = false} else output += "-"
+                    output += "-"
                 }
-                if (operand == null){
+                else if (operand == null){
                     output = "Error: Enter valid operand"
                     error = true
                     argNum = 0.0
